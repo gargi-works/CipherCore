@@ -1,0 +1,197 @@
+<!doctype html>
+<!--
+  CipherCore – Premium Frontend UI (Flask Template)
+  -------------------------------------------------
+  - Futuristic, glassmorphism UI with animated background
+  - Navbar + hero + main input card + animated results
+  - Pure HTML/CSS/JS (Flask-friendly)
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CipherCore</title>
+
+    <!-- CSS file served from /static -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+
+  <body>
+    <!-- Animated background layer -->
+    <div class="bg">
+      <canvas id="bgCanvas" aria-hidden="true"></canvas>
+      <div class="bg-gradient" aria-hidden="true"></div>
+      <div class="bg-glow" aria-hidden="true"></div>
+    </div>
+
+    <!-- Top Navbar -->
+    <header class="nav-wrap">
+      <nav class="nav">
+        <a class="brand" href="#top" aria-label="CipherCore Home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-text">CipherCore</span>
+        </a>
+
+        <div class="tagline">AI for Safer Digital Spaces</div>
+
+        <div class="nav-links" role="navigation" aria-label="Primary">
+          <a href="#top">Home</a>
+          <a href="#how">How it Works</a>
+          <a href="#about">About</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top" class="page">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-badge">Cybersecurity • AI • Women Safety</div>
+        <h1 class="hero-title">
+          Detect. <span class="glow">Prevent.</span> Protect.
+        </h1>
+        <p class="hero-sub">
+          Paste a message from WhatsApp, Instagram, or Email. CipherCore analyzes tone, threats, and harassment signals
+          and suggests the safest next step—fast.
+        </p>
+      </section>
+
+      <!-- Main App Card -->
+      <section class="glass app-card">
+        <header class="card-head">
+          <div class="card-head-left">
+            <div class="chip">Threat Detection</div>
+            <h2 class="card-title">Message Analyzer</h2>
+          </div>
+          <div class="status-pill" id="statusPill" aria-live="polite">
+            <span class="pulse" aria-hidden="true"></span>
+            Ready
+          </div>
+        </header>
+
+        <div class="form">
+            <label for="messageInput">Paste or type a message to analyze</label>
+          <!-- Floating label textarea -->
+          <div class="field floating">
+            <textarea
+              id="messageInput"
+              class="control textarea"
+              placeholder=" "
+              rows="7"
+              spellcheck="false"
+            ></textarea>
+            
+            <div class="hint">Tip: Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to analyze.</div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="label" for="sourceSelect">Message source</label>
+              <select id="sourceSelect" class="control select">
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Email">Email</option>
+              </select>
+            </div>
+
+            <button id="analyzeBtn" class="btn primary" type="button">
+              <span class="btn-glow" aria-hidden="true"></span>
+              <span class="btn-content">
+                <span id="btnText">Analyze</span>
+                <span id="btnSpinner" class="spinner hidden" aria-hidden="true"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Result (hidden until analysis completes) -->
+        <section id="resultCard" class="glass result hidden" aria-live="polite">
+          <div class="result-top">
+            <div class="result-main">
+              <div class="icon-wrap" aria-hidden="true">
+                <!-- Icons are shown/hidden by JS -->
+                <svg id="iconSafe" class="status-icon hidden" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2l7 4v6c0 5-3.5 9.5-7 10-3.5-.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M8.5 12.2l2.2 2.3 4.8-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg id="iconSuspicious" class="status-icon hidden" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2l10 18H2L12 2z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M12 9v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M12 17.5h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                </svg>
+                <svg id="iconDangerous" class="status-icon hidden" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2C7 2 4 6 4 11c0 7 8 11 8 11s8-4 8-11c0-5-3-9-8-9z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M9 10c0-1.2 1-2 2.2-2 .8 0 1.6.4 2 1.1.4-.7 1.2-1.1 2-1.1C18.4 8 19 9 19 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M9.5 14c1.3 1.4 3.7 1.4 5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+
+              <div class="result-title">
+                <div class="result-kicker">Classification</div>
+                <div id="resultLabel" class="result-label">—</div>
+              </div>
+            </div>
+
+            <div class="severity">
+              <div class="result-kicker">Severity</div>
+              <div class="severity-score">
+                <span id="resultScore" class="result-score">0</span><span class="outof">/100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Severity meter -->
+          <div class="meter" aria-label="Severity meter">
+            <div id="meterFill" class="meter-fill" style="width: 0%"></div>
+          </div>
+
+          <div class="result-body">
+            <div class="result-item">
+              <div class="result-item-title">Explanation</div>
+              <p id="resultReason" class="result-item-text">—</p>
+            </div>
+            <div class="result-item">
+              <div class="result-item-title">Suggested action</div>
+              <p id="resultAction" class="result-item-text">—</p>
+            </div>
+          </div>
+
+          <!-- Optional: Red Flags section -->
+          <div id="flagsSection" class="flags hidden">
+            <div class="flags-title">Red Flags Detected</div>
+            <div id="flagsList" class="flags-list"></div>
+            <div class="flags-note">
+              Note: This quick red-flag scan is heuristic. The main classification comes from the AI analysis.
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Info Sections -->
+      <section id="how" class="info">
+        <div class="info-card glass">
+          <h3>How it Works</h3>
+          <p>
+            CipherCore sends the message to an AI classifier, which returns a risk label (Safe/Suspicious/Dangerous),
+            a severity score, and a recommended action—optimized for fast decisions and safer digital spaces.
+          </p>
+        </div>
+        <div id="about" class="info-card glass">
+          <h3>About</h3>
+          <p>
+            Designed with a cybersecurity mindset and a women-safety focus: prioritize early warning signals,
+            de-escalation steps, and clear guidance.
+          </p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>Built for EliteHer Hackathon</span>
+        <span class="dot" aria-hidden="true">•</span>
+        <span>CipherCore</span>
+      </footer>
+    </main>
+
+    <!-- JavaScript file served from /static -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
